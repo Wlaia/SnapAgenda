@@ -51,6 +51,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
                         {profile?.salon_name || "SnapAgenda"}
                     </h1>
                     {profile?.salon_name && <p className="text-xs text-muted-foreground">Sistema de Gestão</p>}
+                    <p className="text-[10px] text-muted-foreground/60 mt-0.5 font-mono">v1.0.0</p>
                 </div>
             </div>
 
@@ -85,9 +86,6 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
                     <LogOut className="h-5 w-5" />
                     Sair
                 </Button>
-            </div>
-            <div className="text-center py-2 text-xs text-muted-foreground/50 border-t border-border/50">
-                v1.0.0
             </div>
         </div>
     );
