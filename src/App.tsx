@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import Index from "./pages/Index";
+import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Agenda from "./pages/Agenda";
@@ -14,7 +15,7 @@ import Layout from "./components/Layout";
 const App = () => (
   <BrowserRouter>
     <Routes>
-      <Route path="/" element={<Navigate to="/auth" replace />} />
+      <Route path="/" element={<Landing />} />
       <Route path="/auth" element={<Auth />} />
 
       <Route element={<Layout />}>
