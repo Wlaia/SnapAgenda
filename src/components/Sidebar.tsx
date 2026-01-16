@@ -55,9 +55,9 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
     return (
         <div className="flex flex-col h-full bg-card">
             <div className="p-6 border-b flex flex-col items-center gap-3">
-                {profile?.logo_url ? (
+                {profile?.logoUrl ? (
                     <img
-                        src={`${profile.logo_url}?t=${new Date().getTime()}`}
+                        src={`${profile.logoUrl}?t=${new Date().getTime()}`}
                         alt="Logo do Salão"
                         className="h-16 w-16 rounded-full object-cover border-2 border-primary/20 shadow-sm"
                     />
@@ -68,9 +68,9 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
                 )}
                 <div className="text-center">
                     <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent truncate max-w-[200px]">
-                        {profile?.salon_name || "SnapAgenda"}
+                        {profile?.salonName || "SnapAgenda"}
                     </h1>
-                    {profile?.salon_name && <p className="text-xs text-muted-foreground">Sistema de Gestão</p>}
+                    {profile?.salonName && <p className="text-xs text-muted-foreground">Sistema de Gestão</p>}
                     <p className="text-[10px] text-muted-foreground/60 mt-0.5 font-mono">v1.0.0</p>
                 </div>
             </div>
