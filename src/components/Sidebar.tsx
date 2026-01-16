@@ -1,10 +1,11 @@
-import { Home, Users, Calendar, Scissors, DollarSign, LogOut, Building, MessageCircle, Download } from "lucide-react";
+import { Home, Users, Calendar, Scissors, DollarSign, LogOut, Building, MessageCircle, Download, ShieldCheck } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import { differenceInDays } from "date-fns";
 
 export const menuItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard" },
@@ -70,8 +71,27 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
                     <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent truncate max-w-[200px]">
                         {profile?.salonName || "SnapAgenda"}
                     </h1>
-                    {profile?.salonName && <p className="text-xs text-muted-foreground">Sistema de Gestão</p>}
-                    <p className="text-[10px] text-muted-foreground/60 mt-0.5 font-mono">v1.0.0</p>
+                    {profile?.salonName && <p className="text-xs text-muted-foreground">{profile.displayName ? `Olá, ${profile.displayName.split(' ')[0]}` : "Sistema de Gestão"}</p>}
+                    <p className="text-[10px] text-muted-foreground/60 mt-0.5 font-mono">v1.2.0</p>
+
+                    {/* Subscription Badge */}
+                    <div className="mt-2">
+                        {profile?.subscriptionStatus === 'active' && (
+                            <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-green-200">
+                                PLANO PRO
+                            </span>
+                        )}
+                        {profile?.subscriptionStatus === 'trial' && (
+                            <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200">
+                                TESTE GRÁTIS ({profile?.trialEndsAt ? differenceInDays(new Date(profile.trialEndsAt), new Date()) : 45} DIAS)
+                            </span>
+                        )}
+                        {(profile?.subscriptionStatus === 'cancelled' || profile?.subscriptionStatus === 'past_due') && (
+                            <span className="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-200">
+                                EXPIRADO
+                            </span>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -95,6 +115,21 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
                         </Link>
                     );
                 })}
+
+                {/* Admin Link - Only for Admins */}
+                {profile?.isAdmin && (
+                    <Link
+                        to="/admin"
+                        onClick={onNavigate}
+                        className={cn(
+                            "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold border border-purple-200 mt-2",
+                            location.pathname === "/admin" && "bg-purple-100 shadow-sm ring-1 ring-purple-300"
+                        )}
+                    >
+                        <ShieldCheck className={cn("h-5 w-5 text-purple-700")} />
+                        Painel Admin
+                    </Link>
+                )}
             </nav>
 
             <div className="p-4 border-t mt-auto space-y-2 pb-24 md:pb-4">

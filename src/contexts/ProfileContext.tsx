@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ProfileData {
@@ -7,31 +7,40 @@ interface ProfileData {
     whatsapp: string;
     logoUrl?: string; // Optional because it might not be set
     address?: string; // Optional
+    subscriptionStatus?: 'trial' | 'active' | 'past_due' | 'cancelled';
+    trialEndsAt?: string;
+    isAdmin?: boolean;
+    lastPaymentDate?: string;
 }
 
 interface ProfileContextType {
     profile: ProfileData;
     updateProfile: (data: Partial<ProfileData>) => void;
     refreshProfile: () => Promise<void>;
+    isLoading: boolean;
 }
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 export function ProfileProvider({ children }: { children: ReactNode }) {
+    const [isLoading, setIsLoading] = useState(true);
     const [profile, setProfile] = useState<ProfileData>({
         displayName: "",
         salonName: "",
         whatsapp: "",
         logoUrl: "",
         address: "",
+        subscriptionStatus: 'trial',
+        isAdmin: false
     });
 
     const loadProfile = async () => {
+        setIsLoading(true);
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
             const { data, error } = await supabase
                 .from("profiles")
-                .select("display_name, salon_name, whatsapp, address, logo_url")
+                .select("display_name, salon_name, whatsapp, address, logo_url, subscription_status, trial_ends_at, is_admin, last_payment_date")
                 .eq("id", user.id)
                 .single();
 
@@ -43,9 +52,14 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
                     whatsapp: data.whatsapp || "",
                     address: data.address || "",
                     logoUrl: data.logo_url || "",
+                    subscriptionStatus: data.subscription_status as any || 'trial',
+                    trialEndsAt: data.trial_ends_at || "",
+                    isAdmin: data.is_admin || false,
+                    lastPaymentDate: data.last_payment_date || "",
                 }));
             }
         }
+        setIsLoading(false);
     };
 
     useEffect(() => {
@@ -61,7 +75,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     };
 
     return (
-        <ProfileContext.Provider value={{ profile, updateProfile, refreshProfile }}>
+        <ProfileContext.Provider value={{ profile, updateProfile, refreshProfile, isLoading }}>
             {children}
         </ProfileContext.Provider>
     );
