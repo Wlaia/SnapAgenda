@@ -86,6 +86,9 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
                     Sair
                 </Button>
             </div>
+            <div className="text-center py-2 text-xs text-muted-foreground/50 border-t border-border/50">
+                v1.0.0
+            </div>
         </div>
     );
 }
