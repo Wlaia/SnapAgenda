@@ -97,7 +97,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
                 })}
             </nav>
 
-            <div className="p-4 border-t mt-auto space-y-2">
+            <div className="p-4 border-t mt-auto space-y-2 pb-24 md:pb-4">
                 {/* Support Section */}
                 <div className="bg-primary/5 rounded-lg p-3 text-center mb-2">
                     <p className="text-xs font-medium text-muted-foreground mb-1">Dúvidas e Sugestão?</p>
