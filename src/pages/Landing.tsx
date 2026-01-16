@@ -5,7 +5,7 @@ import { Calendar, Wallet, Users, Smartphone, ArrowRight, MessageCircle } from "
 
 export default function Landing() {
     return (
-        <div className="min-h-screen bg-background flex flex-col font-sans">
+        <div className="min-h-screen bg-white flex flex-col font-sans text-slate-900">
 
             {/* WhatsApp Floating Button */}
             <a
@@ -19,7 +19,7 @@ export default function Landing() {
             </a>
 
             {/* Header */}
-            <header className="border-b sticky top-0 bg-background/80 backdrop-blur-md z-40 transition-all duration-300">
+            <header className="border-b sticky top-0 bg-white/80 backdrop-blur-md z-40 transition-all duration-300">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <img src="/logo.png" alt="SnapAgenda Logo" className="h-8 w-8 rounded-full shadow-sm" />
@@ -41,7 +41,7 @@ export default function Landing() {
             </header>
 
             {/* Hero Section */}
-            <section className="flex-1 flex flex-col items-center justify-center text-center px-4 pt-20 pb-32 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-100 via-background to-background dark:from-purple-900/20 dark:via-background dark:to-background overflow-hidden relative">
+            <section className="flex-1 flex flex-col items-center justify-center text-center px-4 pt-20 pb-32 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-100 via-white to-white overflow-hidden relative">
 
                 {/* Decorative blobs */}
                 <div className="absolute top-20 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
@@ -51,11 +51,11 @@ export default function Landing() {
                     <div className="inline-block mb-4 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium animate-fade-in-up">
                         ✨ A gestão completa para o seu negócio
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent drop-shadow-sm">
+                    <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 bg-gradient-to-br from-slate-900 to-slate-700 bg-clip-text text-transparent drop-shadow-sm">
                         Transforme o seu <br />
                         <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">Salão de Beleza</span>
                     </h1>
-                    <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+                    <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
                         Diga adeus à agenda de papel. Com o SnapAgenda, você organiza horários, controla o financeiro e fideliza clientes em uma única plataforma intuitiva.
                     </p>
 
@@ -85,7 +85,7 @@ export default function Landing() {
             </section>
 
             {/* Features Section */}
-            <section className="py-24 bg-muted/30 relative">
+            <section className="py-24 bg-slate-50 relative">
                 <div className="container mx-auto px-4 relative z-10">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold mb-4">Por que escolher o SnapAgenda?</h2>
@@ -122,13 +122,13 @@ export default function Landing() {
             </section>
 
             {/* Support / CTA Section */}
-            <section className="py-24 bg-background">
+            <section className="py-24 bg-white">
                 <div className="container mx-auto px-4">
                     <div className="bg-primary/5 rounded-3xl p-8 md:p-16 text-center border border-primary/10 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
 
                         <h2 className="text-3xl md:text-4xl font-bold mb-6">Pronto para modernizar seu salão?</h2>
-                        <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
+                        <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto">
                             Junte-se a centenas de profissionais que já transformaram a gestão de seus negócios.
                         </p>
                         <div className="flex flex-col items-center gap-6">
@@ -152,7 +152,7 @@ export default function Landing() {
             </section>
 
             {/* Footer */}
-            <footer className="py-12 border-t bg-muted/20">
+            <footer className="py-12 border-t bg-slate-50">
                 <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-3">
                         <img src="/logo.png" alt="Logo" className="h-8 w-8 grayscale opacity-70" />
@@ -174,12 +174,12 @@ export default function Landing() {
 
 function FeatureCard({ icon, title, description, color }: { icon: React.ReactNode, title: string, description: string, color: string }) {
     return (
-        <div className="bg-background p-8 rounded-2xl border border-border/50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
             <div className={`mb-6 ${color} w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
                 {icon}
             </div>
             <h3 className="text-2xl font-bold mb-3">{title}</h3>
-            <p className="text-muted-foreground leading-relaxed">{description}</p>
+            <p className="text-slate-600 leading-relaxed">{description}</p>
         </div>
     )
 }
