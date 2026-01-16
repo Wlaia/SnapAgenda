@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useProfile } from "@/contexts/ProfileContext";
 import { supabase } from "@/integrations/supabase/client";
-import { seedDatabase } from "@/utils/seedData";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,7 @@ export default function Perfil() {
     const { profile, refreshProfile } = useProfile();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [newPassword, setNewPassword] = useState("");
 
     const [formData, setFormData] = useState({
         salonName: "",
@@ -212,22 +213,48 @@ export default function Perfil() {
                     </CardContent>
                 </Card>
 
-                <div className="flex justify-end gap-2">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={async () => {
-                            const { data: { user } } = await supabase.auth.getUser();
-                            if (user) {
-                                await seedDatabase(user.id);
-                            } else {
-                                toast.error("Usuário não encontrado!");
-                            }
-                        }}
-                    >
-                        Gerar Dados de Teste
-                    </Button>
+                {/* Security Section */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Segurança</CardTitle>
+                        <CardDescription>Atualize sua senha de acesso</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="flex flex-col sm:flex-row items-end gap-4 p-4 border rounded-lg bg-muted/20">
+                            <div className="flex-1 space-y-2 w-full">
+                                <Label htmlFor="newPassword">Nova Senha</Label>
+                                <Input
+                                    id="newPassword"
+                                    type="password"
+                                    placeholder="Digite sua nova senha"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                />
+                            </div>
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                disabled={!newPassword || newPassword.length < 6}
+                                onClick={async () => {
+                                    setLoading(true);
+                                    const { error } = await supabase.auth.updateUser({ password: newPassword });
 
+                                    if (error) {
+                                        toast.error("Erro ao atualizar senha: " + error.message);
+                                    } else {
+                                        toast.success("Senha atualizada com sucesso!");
+                                        setNewPassword("");
+                                    }
+                                    setLoading(false);
+                                }}
+                            >
+                                Atualizar Senha
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <div className="flex justify-end gap-2">
                     <Button type="submit" disabled={loading} className="w-full sm:w-auto">
                         {loading ? (
                             <>

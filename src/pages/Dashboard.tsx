@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Users, Briefcase, TrendingUp, Scissors, DollarSign } from "lucide-react";
+import { Calendar, Users, Briefcase, TrendingUp, Scissors, DollarSign, Cake } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { useBirthdays } from "@/hooks/use-birthdays";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const statsConfig = [
     { title: "Agendamentos Hoje", icon: Calendar, color: "text-blue-500", key: "todayAppointments" },
@@ -17,6 +20,7 @@ const statsConfig = [
 
 export default function Dashboard() {
     const [loading, setLoading] = useState(true);
+    const { birthdaysToday } = useBirthdays();
     const [stats, setStats] = useState({
         todayAppointments: "0",
         totalClients: "0",
@@ -48,18 +52,21 @@ export default function Dashboard() {
                 .from("appointments")
                 .select(`*, clients(name), professionals(name), services(name)`)
                 .eq("user_id", user.id)
-                .eq("appointment_date", todayDate)
-                .order("appointment_time"),
+                // Filter by today's date using the date column
+                .gte("date", `${todayDate}T00:00:00`)
+                .lte("date", `${todayDate}T23:59:59`)
+                .order("date"),
             supabase.from("clients").select("id", { count: "exact" }).eq("user_id", user.id),
             supabase.from("professionals").select("id", { count: "exact" }).eq("user_id", user.id),
             supabase.from("services").select("id", { count: "exact" }).eq("user_id", user.id),
             supabase
                 .from("financial_transactions")
-                .select("final_amount")
+                .select("amount")
                 .eq("user_id", user.id)
+                .eq("type", "income") // Filter by income only
                 .eq("status", "paid")
-                .gte("transaction_date", startOfMonth)
-                .lte("transaction_date", endOfMonth)
+                .gte("date", startOfMonth) // Corrected from transaction_date to date
+                .lte("date", endOfMonth)   // Corrected from transaction_date to date
         ]);
 
         const appointmentsToday = appointmentsRes.data || [];
@@ -68,7 +75,7 @@ export default function Dashboard() {
         const totalServices = servicesRes.count || 0;
 
         // Calculate Monthly Revenue
-        const revenueValue = (financialsRes.data || []).reduce((sum, t) => sum + Number(t.final_amount), 0);
+        const revenueValue = (financialsRes.data || []).reduce((sum, t) => sum + Number(t.amount), 0);
 
         // Calculate Occupation
         const confirmedToday = appointmentsToday.filter(a => a.status === "confirmed").length;
@@ -90,11 +97,33 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 animate-in fade-in duration-500">
             <div>
                 <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
                 <p className="text-muted-foreground mt-1 capitalize">{today}</p>
             </div>
+
+            {/* Birthday Alert Section */}
+            {birthdaysToday.length > 0 && (
+                <div className="animate-in slide-in-from-top-4 duration-700">
+                    <div className="bg-gradient-to-r from-pink-50 to-rose-50 border border-pink-200 rounded-xl p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-white rounded-full shadow-sm">
+                                <Cake className="h-8 w-8 text-pink-500 animate-pulse" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-pink-700">Aniversariantes do Dia!</h3>
+                                <p className="text-pink-600">
+                                    Não se esqueça de parabenizar: <span className="font-semibold">{birthdaysToday.map(c => c.name).join(", ")}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <Button variant="outline" className="border-pink-200 text-pink-700 hover:bg-pink-100 bg-white shadow-sm" asChild>
+                            <Link to="/agenda">Ver na Agenda</Link>
+                        </Button>
+                    </div>
+                </div>
+            )}
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {statsConfig.map((item, index) => (
@@ -146,7 +175,7 @@ export default function Dashboard() {
                                         </p>
                                     </div>
                                     <div className="text-right font-mono text-lg font-medium text-primary">
-                                        {apt.appointment_time?.slice(0, 5)}
+                                        {format(new Date(apt.date), "HH:mm")}
                                     </div>
                                 </div>
                             ))}

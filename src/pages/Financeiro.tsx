@@ -10,6 +10,7 @@ import { format, isSameMonth, isSameDay, parseISO, startOfMonth, endOfMonth, sub
 import { ptBR } from "date-fns/locale";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import PaymentDialog from "@/components/PaymentDialog";
 
 export default function Financeiro() {
     const [transactions, setTransactions] = useState<any[]>([]);
@@ -26,6 +27,10 @@ export default function Financeiro() {
     const [professionals, setProfessionals] = useState<any[]>([]);
     const [professionalFilter, setProfessionalFilter] = useState("all");
     const [totalCommission, setTotalCommission] = useState(0);
+
+    // Payment Dialog State
+    const [paymentTransaction, setPaymentTransaction] = useState<any>(null);
+    const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
 
     useEffect(() => {
         loadTransactions();
@@ -80,31 +85,31 @@ export default function Financeiro() {
                 case 'all': return true;
                 default: return true;
             }
+        });
+
+        // Further filter for stats if professional selected?
+        // Usually stats cards obey all filters including professional.
+        const filteredFinal = filteredByPeriod.filter(t => {
             if (professionalFilter !== 'all') {
-                // Since we don't have direct professional_id in transactions easily available efficiently without join
-                // and Supabase simple client might not fetch deep nested easily in one go without specifying
-                // We will rely on appointment_id join or we need to fetch transactions WITH appointment info
-                // To keep it simple, let's assume we need to modify loadTransactions to fetch appointment info
-                // OR we can just filter client side if we fetch everything.
-                // Let's modify loadTransactions to fetch appointment->professional_id
-                const profId = t.appointment?.professional_id;
+                const profId = t.appointment?.professional?.id;
                 if (profId !== professionalFilter) return false;
             }
             return true;
         });
 
-        const totalRevenue = filteredByPeriod.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
 
-        const received = filteredByPeriod
+        const totalRevenue = filteredFinal.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+
+        const received = filteredFinal
             .filter(t => t.status === 'paid')
             .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
 
-        const pending = filteredByPeriod
+        const pending = filteredFinal
             .filter(t => t.status === 'pending')
             .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
 
         // Calculate Commission
-        const comm = filteredByPeriod.reduce((acc, curr) => {
+        const comm = filteredFinal.reduce((acc, curr) => {
             const rate = curr.appointment?.professional?.commission_rate || 0;
             const amount = Number(curr.amount) || 0;
             return acc + (amount * (rate / 100));
@@ -115,7 +120,7 @@ export default function Financeiro() {
             totalMonth: totalRevenue,
             receivedToday: received,
             pending: pending,
-            count: filteredByPeriod.length
+            count: filteredFinal.length
         });
     };
 
@@ -129,20 +134,30 @@ export default function Financeiro() {
         }
     };
 
-    const handleMarkAsPaid = async (id: string, currentStatus: string) => {
-        const newStatus = currentStatus === 'pending' ? 'paid' : 'pending';
+    const handleTransactionClick = (transaction: any) => {
+        if (transaction.status === 'pending') {
+            setPaymentTransaction(transaction);
+            setIsPaymentDialogOpen(true);
+        } else {
+            // If already paid, allow reverting to pending directly logic
+            handleRevertPayment(transaction.id);
+        }
+    };
+
+    const handleRevertPayment = async (id: string) => {
+        if (!confirm("Deseja marcar esta transação como Pendente novamente?")) return;
 
         const { error } = await supabase
             .from("financial_transactions")
-            .update({ status: newStatus })
+            .update({ status: 'pending' })
             .eq("id", id);
 
         if (error) {
             toast.error("Erro ao atualizar status");
         } else {
-            toast.success(newStatus === 'paid' ? "Pagamento confirmado!" : "Marcado como pendente");
+            toast.success("Marcado como pendente");
             const updatedTransactions = transactions.map(t =>
-                t.id === id ? { ...t, status: newStatus } : t
+                t.id === id ? { ...t, status: 'pending' } : t
             );
             setTransactions(updatedTransactions);
         }
@@ -333,7 +348,7 @@ export default function Financeiro() {
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    onClick={() => handleMarkAsPaid(t.id, t.status)}
+                                                    onClick={() => handleTransactionClick(t)}
                                                     className={t.status === 'pending' ? "text-green-600 hover:text-green-700 hover:bg-green-100" : "text-muted-foreground"}
                                                 >
                                                     {t.status === 'pending' ? (
@@ -384,13 +399,13 @@ export default function Financeiro() {
                                         </div>
                                         <Button
                                             size="sm"
-                                            onClick={() => handleMarkAsPaid(t.id, t.status)}
+                                            onClick={() => handleTransactionClick(t)}
                                             className={t.status === 'pending' ? "bg-green-600 hover:bg-green-700 text-white h-8 text-xs px-3" : "bg-muted text-muted-foreground hover:bg-muted/80 h-8 text-xs px-3"}
                                         >
                                             {t.status === 'pending' ? (
                                                 <>
                                                     <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
-                                                    Confirmar Pagamento
+                                                    Confirmar
                                                 </>
                                             ) : (
                                                 <>
@@ -406,6 +421,16 @@ export default function Financeiro() {
                     </div>
                 </>
             )}
+
+            <PaymentDialog
+                open={isPaymentDialogOpen}
+                onClose={() => setIsPaymentDialogOpen(false)}
+                onSuccess={() => {
+                    loadTransactions();
+                    // Maybe refresh other stats?
+                }}
+                transaction={paymentTransaction}
+            />
         </div>
     );
 }

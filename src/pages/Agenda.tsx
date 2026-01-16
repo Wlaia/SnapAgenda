@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useBirthdays } from "@/hooks/use-birthdays";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +11,7 @@ import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import AppointmentDialog from "@/components/AppointmentDialog";
-import { Check, X, Edit, Bell, Clock, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, X, Edit, Bell, Clock, Plus, ChevronLeft, ChevronRight, Cake } from "lucide-react";
 import { useProfile } from "@/contexts/ProfileContext";
 import {
     sendWhatsAppMessage,
@@ -33,21 +34,12 @@ export default function Agenda() {
     const [loading, setLoading] = useState(true);
     const [editingAppointment, setEditingAppointment] = useState<any>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const { birthdaysToday } = useBirthdays();
+    // const [birthdaysToday, setBirthdaysToday] = useState<any[]>([]); // Removed local state
 
     useEffect(() => {
         loadAllAppointments();
     }, []);
-
-    useEffect(() => {
-        if (searchParams.get('new') === 'true') {
-            setIsDialogOpen(true);
-            // Clean up URL
-            setSearchParams(params => {
-                params.delete('new');
-                return params;
-            });
-        }
-    }, [searchParams, setSearchParams]);
 
     useEffect(() => {
         loadAppointments();
@@ -68,47 +60,56 @@ export default function Agenda() {
 
     const loadAppointments = async () => {
         setLoading(true);
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                console.error("Agenda: User not found");
+                return;
+            }
 
-        let query = supabase
-            .from("appointments")
-            .select(`
-                *,
-                clients (name, phone),
-                professionals (name),
-                services (name)
-            `)
-            .eq("user_id", user.id);
+            console.log("Agenda: User found, fetching appointments...");
 
-        // Date filter based on view
-        if (view === 'day') {
-            const dateStr = format(date, "yyyy-MM-dd");
-            // Filter by date range (start of day to end of day) in UTC/ISO
-            // Simpler: select all and filter in memory or use date_trunc in Supabase (if rpc).
-            // For now, let's filter in memory or use string comparison if Supabase supports it on timestamptz?
-            // Safer: query range for the day.
-            const dayStart = new Date(dateStr + "T00:00:00").toISOString();
-            const dayEnd = new Date(dateStr + "T23:59:59").toISOString();
-            query = query.gte("date", dayStart).lte("date", dayEnd);
-        } else if (view === 'week') {
-            const startStr = format(startOfWeek(date), "yyyy-MM-dd");
-            const endStr = format(endOfWeek(date), "yyyy-MM-dd");
-            query = query.gte("date", startStr + "T00:00:00").lte("date", endStr + "T23:59:59");
-        } else if (view === 'month') {
-            const startStr = format(startOfMonth(date), "yyyy-MM-dd");
-            const endStr = format(endOfMonth(date), "yyyy-MM-dd");
-            query = query.gte("date", startStr + "T00:00:00").lte("date", endStr + "T23:59:59");
+            let query = supabase
+                .from("appointments")
+                .select(`
+                    *,
+                    clients (name, phone),
+                    professionals (name),
+                    services (name)
+                `)
+                .eq("user_id", user.id);
+
+            // Date filter based on view
+            if (view === 'day') {
+                const dateStr = format(date, "yyyy-MM-dd");
+                const dayStart = new Date(dateStr + "T00:00:00").toISOString();
+                const dayEnd = new Date(dateStr + "T23:59:59").toISOString();
+                query = query.gte("date", dayStart).lte("date", dayEnd);
+            } else if (view === 'week') {
+                const startStr = format(startOfWeek(date), "yyyy-MM-dd");
+                const endStr = format(endOfWeek(date), "yyyy-MM-dd");
+                query = query.gte("date", startStr + "T00:00:00").lte("date", endStr + "T23:59:59");
+            } else if (view === 'month') {
+                const startStr = format(startOfMonth(date), "yyyy-MM-dd");
+                const endStr = format(endOfMonth(date), "yyyy-MM-dd");
+                query = query.gte("date", startStr + "T00:00:00").lte("date", endStr + "T23:59:59");
+            }
+
+            const { data, error } = await query.order("date");
+
+            if (error) {
+                console.error("Agenda: Error fetching appointments", error);
+                toast.error("Erro ao carregar agendamentos");
+            } else {
+                console.log("Agenda: Appointments loaded", data?.length);
+                setAppointments(data || []);
+            }
+        } catch (err) {
+            console.error("Agenda: Unexpected error", err);
+            toast.error("Erro inesperado ao carregar agenda");
+        } finally {
+            setLoading(false);
         }
-
-        const { data, error } = await query.order("date");
-
-        if (error) {
-            toast.error("Erro ao carregar agendamentos");
-        } else {
-            setAppointments(data || []);
-        }
-        setLoading(false);
     };
 
     const handleStatusUpdate = async (id: string, newStatus: string, appointment: any) => {
@@ -340,6 +341,22 @@ export default function Agenda() {
 
             {/* Content Area */}
             <div className="flex-1 overflow-y-auto p-4 pb-20">
+                {birthdaysToday.length > 0 && (
+                    <div className="mb-4 animate-in slide-in-from-top-2 duration-700">
+                        <div className="p-4 rounded-lg bg-gradient-to-r from-pink-50 to-rose-50 border border-pink-200 flex items-start gap-3 shadow-sm">
+                            <div className="p-2 bg-pink-100 rounded-full">
+                                <Cake className="h-5 w-5 text-pink-500" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-pink-700">Aniversariantes do Dia!</h4>
+                                <p className="text-sm text-pink-600 mt-1">
+                                    Parabéns para: {birthdaysToday.map(c => c.name).join(", ")}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {loading ? (
                     <div className="flex justify-center py-12">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
