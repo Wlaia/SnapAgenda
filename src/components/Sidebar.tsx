@@ -1,9 +1,10 @@
-import { Home, Users, Calendar, Scissors, DollarSign, LogOut, Building } from "lucide-react";
+import { Home, Users, Calendar, Scissors, DollarSign, LogOut, Building, MessageCircle, Download } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useState, useEffect } from "react";
 
 export const menuItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard" },
@@ -25,6 +26,25 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
     const location = useLocation();
     const navigate = useNavigate();
     const { profile } = useProfile();
+    const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+    useEffect(() => {
+        const handler = (e: any) => {
+            e.preventDefault();
+            setDeferredPrompt(e);
+        };
+        window.addEventListener("beforeinstallprompt", handler);
+        return () => window.removeEventListener("beforeinstallprompt", handler);
+    }, []);
+
+    const handleInstallClick = async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === "accepted") {
+            setDeferredPrompt(null);
+        }
+    };
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -77,7 +97,33 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
                 })}
             </nav>
 
-            <div className="p-4 border-t mt-auto">
+            <div className="p-4 border-t mt-auto space-y-2">
+                {/* Support Section */}
+                <div className="bg-primary/5 rounded-lg p-3 text-center mb-2">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">Dúvidas e Sugestão?</p>
+                    <a
+                        href="https://wa.me/5524992777262"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs font-bold text-green-600 hover:underline flex items-center justify-center gap-1"
+                    >
+                        <MessageCircle className="h-3 w-3" />
+                        WhatsApp Suporte
+                    </a>
+                </div>
+
+                {/* Install Button */}
+                {deferredPrompt && (
+                    <Button
+                        variant="outline"
+                        className="w-full justify-start gap-3 border-primary/20 hover:bg-primary/5 text-primary"
+                        onClick={handleInstallClick}
+                    >
+                        <Download className="h-5 w-5" />
+                        Instalar App
+                    </Button>
+                )}
+
                 <Button
                     variant="ghost"
                     className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
