@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
+import { InstallPrompt } from "./components/InstallPrompt";
 import Index from "./pages/Index";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
@@ -13,24 +14,27 @@ import Perfil from "./pages/Perfil";
 import Layout from "./components/Layout";
 
 const App = () => (
-  <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<Landing />} />
-      <Route path="/auth" element={<Auth />} />
-
-      <Route element={<Layout />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/agenda" element={<Agenda />} />
-        <Route path="/clientes" element={<Clientes />} />
-        <Route path="/servicos" element={<Servicos />} />
-        <Route path="/profissionais" element={<Profissionais />} />
-        <Route path="/financeiro" element={<Financeiro />} />
-        <Route path="/perfil" element={<Perfil />} />
-      </Route>
-
-    </Routes>
+  <>
     <Toaster />
-  </BrowserRouter>
+    <InstallPrompt />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/auth" element={<Auth />} />
+
+        <Route element={<Layout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/agenda" element={<Agenda />} />
+          <Route path="/clientes" element={<Clientes />} />
+          <Route path="/servicos" element={<Servicos />} />
+          <Route path="/profissionais" element={<Profissionais />} />
+          <Route path="/financeiro" element={<Financeiro />} />
+          <Route path="/perfil" element={<Perfil />} />
+        </Route>
+
+      </Routes>
+    </BrowserRouter>
+  </>
 );
 
 export default App;
