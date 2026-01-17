@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,15 @@ export default function Auth() {
     const [displayName, setDisplayName] = useState("");
     const [resetMode, setResetMode] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // If already logged in, redirect to dashboard
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                navigate("/dashboard");
+            }
+        });
+    }, [navigate]);
 
     const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();

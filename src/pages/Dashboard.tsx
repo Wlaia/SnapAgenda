@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { useBirthdays } from "@/hooks/use-birthdays";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useProfile } from "@/contexts/ProfileContext";
 
 const statsConfig = [
     { title: "Agendamentos Hoje", icon: Calendar, color: "text-blue-500", key: "todayAppointments" },
@@ -20,6 +21,7 @@ const statsConfig = [
 
 export default function Dashboard() {
     const [loading, setLoading] = useState(true);
+    const { profile } = useProfile();
     const { birthdaysToday } = useBirthdays();
     const [stats, setStats] = useState({
         todayAppointments: "0",
@@ -30,7 +32,7 @@ export default function Dashboard() {
         monthlyRevenue: "R$ 0,00"
     });
     const [upcomingAppointments, setUpcomingAppointments] = useState<any[]>([]);
-    const [userName, setUserName] = useState("Gestor");
+    // Removed local userName state in favor of profile
 
     const todayDate = new Date();
     const todayFormatted = format(todayDate, "EEEE, dd 'de' MMMM", { locale: ptBR });
@@ -48,10 +50,7 @@ export default function Dashboard() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // Get user profile for name
-        const { data: profile } = await supabase.from('profiles').select('contact_name, salon_name').eq('id', user.id).single();
-        if (profile?.contact_name) setUserName(profile.contact_name.split(' ')[0]);
-        else if (profile?.salon_name) setUserName(profile.salon_name);
+        // Name fetching logic removed, using profile context instead
 
         const todayStr = format(new Date(), "yyyy-MM-dd");
         const startOfMonth = format(new Date(), "yyyy-MM-01");
@@ -113,8 +112,13 @@ export default function Dashboard() {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-4xl font-light tracking-tight text-foreground">
-                        Olá, <span className="font-semibold text-gradient">{userName}</span>
+                    <h1 className="text-2xl font-light tracking-tight text-foreground">
+                        Olá, <span className="font-semibold text-gradient">{
+                            profile.contactName?.split(' ')[0] ||
+                            profile.displayName?.split(' ')[0] ||
+                            profile.salonName ||
+                            "Gestor"
+                        }</span>
                     </h1>
                     <p className="text-muted-foreground mt-2 text-lg capitalize flex items-center gap-2">
                         <Calendar className="h-4 w-4" /> {todayFormatted}

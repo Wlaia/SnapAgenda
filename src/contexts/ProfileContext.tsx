@@ -70,6 +70,31 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         loadProfile();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            // Reload profile whenever the auth state changes (sign in, sign out, etc.)
+            if (session?.user) {
+                loadProfile();
+            } else {
+                // Clear profile if logged out
+                setProfile({
+                    id: undefined,
+                    displayName: "",
+                    salonName: "",
+                    whatsapp: "",
+                    logoUrl: "",
+                    address: "",
+                    subscriptionStatus: 'trial',
+                    isAdmin: false,
+                    settings: {}
+                });
+                setIsLoading(false);
+            }
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
     }, []);
 
     const updateProfile = (data: Partial<ProfileData>) => {
