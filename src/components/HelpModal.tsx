@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-import { Book, Calendar, Users, Briefcase, Scissors, Wallet, Settings } from "lucide-react";
+import { Book, Calendar, Users, Briefcase, Scissors, Wallet, Settings, Smartphone } from "lucide-react";
 
 interface HelpModalProps {
     isOpen: boolean;
@@ -80,6 +80,30 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                                         <li>Ative o <strong>Agendamento Online</strong>.</li>
                                         <li>Copie o link e coloque na bio do Instagram.</li>
                                     </ol>
+                                </AccordionContent>
+                            </AccordionItem>
+
+                            <AccordionItem value="item-6">
+                                <AccordionTrigger className="text-lg font-medium hover:text-primary transition-colors">
+                                    <span className="flex items-center gap-2"><Smartphone className="h-4 w-4" /> Instalar Aplicativo</span>
+                                </AccordionTrigger>
+                                <AccordionContent className="text-muted-foreground space-y-4">
+                                    <div>
+                                        <p className="font-semibold text-foreground">Android (Chrome):</p>
+                                        <ol className="list-decimal pl-4 space-y-1 mt-1">
+                                            <li>Abra o site no Google Chrome.</li>
+                                            <li>Toque nos <strong>três pontinhos (⋮)</strong> no canto superior.</li>
+                                            <li>Toque em <strong>"Instalar aplicativo"</strong> ou <strong>"Adicionar à tela inicial"</strong>.</li>
+                                        </ol>
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-foreground">iPhone (Safari):</p>
+                                        <ol className="list-decimal pl-4 space-y-1 mt-1">
+                                            <li>Abra o site no Safari.</li>
+                                            <li>Toque no botão <strong>Compartilhar</strong> (quadrado com seta).</li>
+                                            <li>Role para baixo e toque em <strong>"Adicionar à Tela de Início"</strong>.</li>
+                                        </ol>
+                                    </div>
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>

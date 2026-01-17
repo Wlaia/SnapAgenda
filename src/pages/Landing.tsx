@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { Calendar, Wallet, Users, Smartphone, ArrowRight, MessageCircle, Menu, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { InstallTutorial } from "@/components/InstallTutorial";
 
 export default function Landing() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -47,6 +48,7 @@ export default function Landing() {
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center gap-8">
                         <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Funcionalidades</a>
+                        <a href="#install-app" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors font-semibold">Baixar App</a>
                         <a href="#testimonials" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Depoimentos</a>
                         <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Planos</a>
                     </nav>
@@ -72,6 +74,7 @@ export default function Landing() {
                 {isMenuOpen && (
                     <div className="md:hidden absolute top-16 left-0 w-full bg-background border-b shadow-2xl p-4 flex flex-col gap-4 animate-in slide-in-from-top-5">
                         <a href="#features" className="p-2 text-lg font-medium text-muted-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>Funcionalidades</a>
+                        <a href="#install-app" className="p-2 text-lg font-medium text-primary hover:text-primary/80 transition-colors font-semibold" onClick={() => setIsMenuOpen(false)}>Baixar App</a>
                         <a href="#testimonials" className="p-2 text-lg font-medium text-muted-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>Depoimentos</a>
                         <a href="#pricing" className="p-2 text-lg font-medium text-muted-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>Planos</a>
                         <div className="flex flex-col gap-2 mt-2 pt-4 border-t">
@@ -169,6 +172,9 @@ export default function Landing() {
                     </div>
                 </div>
             </section>
+
+            {/* Install App Tutorial Section */}
+            <InstallTutorial />
 
             {/* Testimonials Section */}
             <section id="testimonials" className="py-24 bg-background scroll-mt-16">

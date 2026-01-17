@@ -14,7 +14,7 @@ export default function Layout() {
     const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);
     const [isHelpOpen, setIsHelpOpen] = useState(false); // Added state for HelpModal
     const [hasNewFeatures, setHasNewFeatures] = useState(false);
-    const currentVersion = "1.2.1";
+    const currentVersion = "1.2.2";
 
     useEffect(() => { // Changed from useState to useEffect
         const lastSeen = localStorage.getItem('snap_version');
