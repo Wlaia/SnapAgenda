@@ -1,11 +1,16 @@
 
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Download, X } from "lucide-react";
 
 export function InstallPrompt() {
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
     const [isVisible, setIsVisible] = useState(false);
+    const location = useLocation();
+
+    // Do not show on public booking page
+    if (location.pathname.startsWith('/agendar')) return null;
 
     useEffect(() => {
         const handler = (e: any) => {

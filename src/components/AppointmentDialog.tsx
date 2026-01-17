@@ -105,6 +105,82 @@ export default function AppointmentDialog({ selectedDate, onSuccess, appointment
             return;
         }
 
+        // --- VALIDATION START ---
+
+        // 1. Get Service Duration
+        const service = services.find(s => s.id === formData.serviceId);
+        if (!service) {
+            toast.error("Serviço inválido");
+            setLoading(false);
+            return;
+        }
+        const duration = service.duration || 30; // Default 30 min if missing
+
+        // 2. Parse selected string time to Date objects
+        const startDateTime = new Date(format(appointmentDate, "yyyy-MM-dd") + "T" + formData.time);
+        const endDateTime = new Date(startDateTime.getTime() + duration * 60000);
+
+        // 3. Check Business Hours
+        // Fetch profile settings
+        const { data: profileData } = await supabase
+            .from("profiles")
+            .select("settings")
+            .eq("id", user.id)
+            .single();
+
+        const settings = profileData?.settings as any;
+
+        if (settings?.hours) {
+            const dayOfWeek = format(startDateTime, "EEEE").toLowerCase(); // 'monday', 'tuesday'...
+            const dayConfig = settings.hours[dayOfWeek];
+
+            if (!dayConfig || !dayConfig.active) {
+                toast.error("O estabelecimento não funciona neste dia.");
+                setLoading(false);
+                return;
+            }
+
+            const openTime = new Date(format(appointmentDate, "yyyy-MM-dd") + "T" + dayConfig.open);
+            const closeTime = new Date(format(appointmentDate, "yyyy-MM-dd") + "T" + dayConfig.close);
+
+            if (startDateTime < openTime || endDateTime > closeTime) {
+                toast.error(`Horário fora de funcionamento (${dayConfig.open} - ${dayConfig.close})`);
+                setLoading(false);
+                return;
+            }
+        }
+
+        // 4. Check Conflicts (Overlaps)
+        const { data: existingAppts } = await supabase
+            .from("appointments")
+            .select("date, service_id, services(duration)")
+            .eq("professional_id", formData.professionalId)
+            .eq("user_id", user.id)
+            .neq("status", "cancelled")
+            .gte("date", format(appointmentDate, "yyyy-MM-dd") + "T00:00:00")
+            .lte("date", format(appointmentDate, "yyyy-MM-dd") + "T23:59:59");
+
+        if (existingAppts) {
+            const hasConflict = existingAppts.some(apt => {
+                // Skip self if editing
+                if (appointment && new Date(apt.date).getTime() === new Date(appointment.date).getTime()) return false;
+
+                const aptStart = new Date(apt.date);
+                const aptDuration = apt.services?.duration || 30;
+                const aptEnd = new Date(aptStart.getTime() + aptDuration * 60000);
+
+                // Check overlap logic: (StartA < EndB) and (EndA > StartB)
+                return startDateTime < aptEnd && endDateTime > aptStart;
+            });
+
+            if (hasConflict) {
+                toast.error("Este horário já está ocupado por outro agendamento.");
+                setLoading(false);
+                return;
+            }
+        }
+        // --- VALIDATION END ---
+
         if (appointment) {
             const { error } = await supabase
                 .from("appointments")
@@ -112,7 +188,7 @@ export default function AppointmentDialog({ selectedDate, onSuccess, appointment
                     client_id: formData.clientId,
                     professional_id: formData.professionalId,
                     service_id: formData.serviceId,
-                    date: new Date(format(appointmentDate, "yyyy-MM-dd") + "T" + formData.time).toISOString(),
+                    date: startDateTime.toISOString(),
                 })
                 .eq("id", appointment.id);
 
@@ -123,9 +199,8 @@ export default function AppointmentDialog({ selectedDate, onSuccess, appointment
                 handleClose();
             }
         } else {
-            // Get client, service info for financial transaction
+            // Get client info for financial transaction
             const client = clients.find(c => c.id === formData.clientId);
-            const service = services.find(s => s.id === formData.serviceId);
 
             const { data: appointmentData, error } = await supabase
                 .from("appointments")
@@ -134,7 +209,7 @@ export default function AppointmentDialog({ selectedDate, onSuccess, appointment
                     client_id: formData.clientId,
                     professional_id: formData.professionalId,
                     service_id: formData.serviceId,
-                    date: new Date(format(appointmentDate, "yyyy-MM-dd") + "T" + formData.time).toISOString(),
+                    date: startDateTime.toISOString(),
                 })
                 .select()
                 .single();
@@ -152,7 +227,7 @@ export default function AppointmentDialog({ selectedDate, onSuccess, appointment
                         amount: service?.price || 0,
                         type: 'income',
                         status: "pending",
-                        date: format(appointmentDate, "yyyy-MM-dd"), // Schema is 'date' type, usually YYYY-MM-DD string is fine or Date object.
+                        date: format(appointmentDate, "yyyy-MM-dd"),
                     });
 
                 if (finError) {

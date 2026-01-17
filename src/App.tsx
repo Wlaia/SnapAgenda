@@ -16,17 +16,19 @@ import Perfil from "./pages/Perfil";
 import Layout from "./components/Layout";
 import { SubscriptionGuard } from "./components/SubscriptionGuard";
 import { ProfileProvider } from "./contexts/ProfileContext";
+import PublicBooking from "./pages/PublicBooking";
 
 const App = () => (
   <>
     <Toaster />
-    <InstallPrompt />
     <BrowserRouter>
+      <InstallPrompt />
       <ProfileProvider>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/payment-required" element={<PaymentRequired />} />
+          <Route path="/agendar/:uid" element={<PublicBooking />} />
 
           <Route element={
             <SubscriptionGuard>

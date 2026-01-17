@@ -17,6 +17,10 @@ export const SubscriptionGuard = ({ children }: SubscriptionGuardProps) => {
             </div>
         );
     }
+    // Check if user is authenticated/loaded
+    if (!profile?.id) {
+        return <Navigate to="/auth" replace />;
+    }
 
     // Admin bypass
     if (profile.isAdmin) {

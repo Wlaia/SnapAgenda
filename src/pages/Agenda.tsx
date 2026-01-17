@@ -45,6 +45,19 @@ export default function Agenda() {
         loadAppointments();
     }, [date, view]);
 
+    // Check for "action=new" from dashboard or mobile menu
+    useEffect(() => {
+        if (searchParams.get("action") === "new") {
+            setEditingAppointment(null);
+            setIsDialogOpen(true);
+            // Optional: clean up URL
+            // setSearchParams(params => {
+            //     params.delete("action");
+            //     return params;
+            // });
+        }
+    }, [searchParams]);
+
     const loadAllAppointments = async () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
@@ -313,9 +326,22 @@ export default function Agenda() {
             {/* Header with View Toggle */}
             <div className="shrink-0 z-10 sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
                 <div className="flex items-center justify-between p-2">
-                    <div className="flex-1">
+                    <div className="flex-1 flex items-center gap-2">
+                        <Button
+                            size="sm"
+                            className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm hover:shadow-md"
+                            onClick={() => {
+                                setEditingAppointment(null);
+                                setIsDialogOpen(true);
+                            }}
+                        >
+                            <Plus className="h-4 w-4 md:mr-2" />
+                            <span className="hidden md:inline">Novo Agendamento</span>
+                            <span className="md:hidden">Novo</span>
+                        </Button>
+
                         {view !== 'day' && (
-                            <div className="flex items-center gap-2 px-2">
+                            <div className="flex items-center gap-2 px-2 hidden sm:flex">
                                 <h2 className="text-lg font-bold capitalize text-primary">
                                     {format(date, "MMMM yyyy", { locale: ptBR })}
                                 </h2>

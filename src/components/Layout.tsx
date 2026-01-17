@@ -92,7 +92,7 @@ export default function Layout() {
                 {/* Central Highlighted Button */}
                 <div className="relative -top-5">
                     <Link
-                        to="/agenda?new=true"
+                        to="/agenda?action=new"
                         className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 border-4 border-background"
                     >
                         <AgendaIcon className="h-6 w-6 text-white" strokeWidth={2.5} />

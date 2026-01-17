@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 import { supabase } from "@/integrations/supabase/client";
 
 interface ProfileData {
+    id?: string;
     displayName: string;
     salonName: string;
     whatsapp: string;
@@ -11,6 +12,7 @@ interface ProfileData {
     trialEndsAt?: string;
     isAdmin?: boolean;
     lastPaymentDate?: string;
+    settings?: any; // Added settings
 }
 
 interface ProfileContextType {
@@ -25,13 +27,15 @@ const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 export function ProfileProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
     const [profile, setProfile] = useState<ProfileData>({
+        id: undefined,
         displayName: "",
         salonName: "",
         whatsapp: "",
         logoUrl: "",
         address: "",
         subscriptionStatus: 'trial',
-        isAdmin: false
+        isAdmin: false,
+        settings: {}
     });
 
     const loadProfile = async () => {
@@ -40,13 +44,14 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         if (user) {
             const { data, error } = await supabase
                 .from("profiles")
-                .select("display_name, salon_name, whatsapp, address, logo_url, subscription_status, trial_ends_at, is_admin, last_payment_date")
+                .select("display_name, salon_name, whatsapp, address, logo_url, subscription_status, trial_ends_at, is_admin, last_payment_date, settings")
                 .eq("id", user.id)
                 .single();
 
             if (data && !error) {
                 setProfile(prev => ({
                     ...prev,
+                    id: user.id,
                     displayName: data.display_name || "",
                     salonName: data.salon_name || "",
                     whatsapp: data.whatsapp || "",
@@ -56,6 +61,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
                     trialEndsAt: data.trial_ends_at || "",
                     isAdmin: data.is_admin || false,
                     lastPaymentDate: data.last_payment_date || "",
+                    settings: data.settings || {}
                 }));
             }
         }

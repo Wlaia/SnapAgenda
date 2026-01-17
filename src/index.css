@@ -70,7 +70,22 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-white/70 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-lg;
+  }
+
+  .glass-card:hover {
+    @apply bg-white/80 dark:bg-black/50 transition-all duration-300;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent;
   }
 }
