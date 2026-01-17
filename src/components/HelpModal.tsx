@@ -64,8 +64,10 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                                     <span className="flex items-center gap-2"><Wallet className="h-4 w-4" /> Financeiro</span>
                                 </AccordionTrigger>
                                 <AccordionContent className="text-muted-foreground space-y-2">
-                                    <p><strong>Controle:</strong> Cada agendamento gera uma transação automática.</p>
-                                    <p><strong>Lucro:</strong> Lance suas despesas (aluguel, produtos) para ver o lucro real.</p>
+                                    <p><strong>Controle Completo:</strong> Gerencie suas <strong>Entradas</strong> (Serviços) e <strong>Saídas</strong> (Contas) em abas separadas.</p>
+                                    <p><strong>Nova Despesa:</strong> Clique no botão "Nova Despesa" para registrar contas como Aluguel, Luz, Produtos, etc.</p>
+                                    <p><strong>Edição e Exclusão:</strong> Errou algo? Clique nos três pontinhos (⋮) ao lado da despesa para Editar ou Excluir.</p>
+                                    <p><strong>Saldo em Tempo Real:</strong> Veja seu lucro líquido (Entradas - Saídas) e o que tem Pendente a pagar ou receber.</p>
                                 </AccordionContent>
                             </AccordionItem>
 

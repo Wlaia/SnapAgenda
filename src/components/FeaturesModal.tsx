@@ -8,7 +8,7 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Globe, Sparkles, MessageCircle, ArrowRight } from "lucide-react";
+import { Globe, Sparkles, MessageCircle, ArrowRight, Wallet } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface FeaturesModalProps {
@@ -37,7 +37,13 @@ export function FeaturesModal({ open, onOpenChange }: FeaturesModalProps) {
             title: "Notificações Personalizadas",
             description: "Configure as mensagens automáticas de confirmação e lembrete que enviamos para o WhatsApp dos clientes.",
             color: "text-green-500",
-            bg: "bg-green-500/10"
+        },
+        {
+            icon: Wallet,
+            title: "Contas a Pagar & Lucro Real",
+            description: "Agora você tem controle total! Lance suas despesas, diferencie Entradas de Saídas e veja o saldo real do seu negócio.",
+            color: "text-red-500",
+            bg: "bg-red-500/10"
         }
     ];
 
