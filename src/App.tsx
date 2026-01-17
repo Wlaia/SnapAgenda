@@ -4,6 +4,7 @@ import { InstallPrompt } from "./components/InstallPrompt";
 import Index from "./pages/Index";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
+import UpdatePassword from "./pages/UpdatePassword";
 import Admin from "./pages/Admin";
 import Dashboard from "./pages/Dashboard";
 import PaymentRequired from "./pages/PaymentRequired";
@@ -27,6 +28,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/update-password" element={<UpdatePassword />} />
           <Route path="/payment-required" element={<PaymentRequired />} />
           <Route path="/agendar/:uid" element={<PublicBooking />} />
 

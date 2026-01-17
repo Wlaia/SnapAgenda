@@ -1,13 +1,31 @@
 import { useState } from "react";
 import { Sidebar, SidebarContent, menuItems } from "./Sidebar";
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Bell } from "lucide-react";
+import { FeaturesModal } from "./FeaturesModal";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export default function Layout() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const location = useLocation();
+
+    const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);
+    const [hasNewFeatures, setHasNewFeatures] = useState(false);
+    const currentVersion = "1.2.0";
+
+    useState(() => {
+        const lastSeen = localStorage.getItem('snap_version');
+        if (lastSeen !== currentVersion) {
+            setHasNewFeatures(true);
+        }
+    });
+
+    const handleOpenFeatures = () => {
+        setIsFeaturesOpen(true);
+        setHasNewFeatures(false);
+        localStorage.setItem('snap_version', currentVersion);
+    };
 
     const DashboardIcon = menuItems[0].icon;
     const AgendaIcon = menuItems[1].icon;
@@ -16,8 +34,25 @@ export default function Layout() {
     const FinanceiroIcon = menuItems[5].icon;
 
     return (
-        <div className="flex min-h-screen bg-background text-foreground">
+        <div className="flex min-h-screen bg-background text-foreground relative">
             <Sidebar />
+
+            <FeaturesModal open={isFeaturesOpen} onOpenChange={setIsFeaturesOpen} />
+
+            {/* Desktop Notification Bell (Fixed Top Right) */}
+            <div className="hidden md:block fixed top-6 right-8 z-50">
+                <Button
+                    variant="secondary"
+                    size="icon"
+                    className="rounded-full shadow-lg bg-card/80 backdrop-blur-sm border hover:scale-105 transition-transform relative"
+                    onClick={handleOpenFeatures}
+                >
+                    <Bell className="h-5 w-5 text-foreground" />
+                    {hasNewFeatures && (
+                        <span className="absolute top-0 right-0 h-3 w-3 bg-red-500 rounded-full border-2 border-background animate-pulse" />
+                    )}
+                </Button>
+            </div>
 
             {/* Mobile Header */}
             <div className="md:hidden fixed top-0 left-0 right-0 z-30 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 px-4 h-16 flex items-center justify-between">
@@ -26,13 +61,26 @@ export default function Layout() {
                         SnapAgenda
                     </h1>
                 </div>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setIsSidebarOpen(true)}
-                >
-                    <Menu className="h-6 w-6 text-muted-foreground" />
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleOpenFeatures}
+                        className="relative"
+                    >
+                        <Bell className="h-6 w-6 text-muted-foreground" />
+                        {hasNewFeatures && (
+                            <span className="absolute top-2 right-2 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-background" />
+                        )}
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setIsSidebarOpen(true)}
+                    >
+                        <Menu className="h-6 w-6 text-muted-foreground" />
+                    </Button>
+                </div>
             </div>
 
             {/* Mobile Sidebar Overlay */}
