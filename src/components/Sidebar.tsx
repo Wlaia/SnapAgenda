@@ -63,8 +63,8 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
                         className="h-16 w-16 rounded-full object-cover border-2 border-primary/20 shadow-sm"
                     />
                 ) : (
-                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Scissors className="h-6 w-6 text-primary" />
+                    <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden mb-2">
+                        <img src="/logo.png" alt="Logo Padrao" className="h-full w-full object-cover" />
                     </div>
                 )}
                 <div className="text-center">

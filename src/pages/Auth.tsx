@@ -59,8 +59,8 @@ export default function Auth() {
             <Card className="w-full max-w-md shadow-2xl border-white/20 backdrop-blur-sm bg-white/80 dark:bg-zinc-950/80">
                 <CardHeader className="space-y-4 text-center">
                     <div className="flex justify-center mb-2">
-                        <div className="p-3 rounded-full bg-primary/10">
-                            <Scissors className="h-10 w-10 text-primary" />
+                        <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                            <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
                         </div>
                     </div>
                     <div className="space-y-1">
