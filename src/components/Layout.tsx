@@ -14,7 +14,7 @@ export default function Layout() {
     const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);
     const [isHelpOpen, setIsHelpOpen] = useState(false); // Added state for HelpModal
     const [hasNewFeatures, setHasNewFeatures] = useState(false);
-    const currentVersion = "1.2.0";
+    const currentVersion = "1.2.1";
 
     useEffect(() => { // Changed from useState to useEffect
         const lastSeen = localStorage.getItem('snap_version');
@@ -40,7 +40,7 @@ export default function Layout() {
             <Sidebar />
 
             <FeaturesModal open={isFeaturesOpen} onOpenChange={setIsFeaturesOpen} />
-            <HelpModal open={isHelpOpen} onOpenChange={setIsHelpOpen} /> {/* Render HelpModal */}
+            <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} /> {/* Render HelpModal */}
 
             {/* Desktop Notification Bell and Help (Fixed Top Right) */}
             <div className="hidden md:block fixed top-6 right-8 z-50 flex gap-2"> {/* Added flex gap-2 */}
