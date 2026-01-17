@@ -1,12 +1,23 @@
 
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Calendar, Wallet, Users, Smartphone, ArrowRight, MessageCircle, Menu, X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Landing() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        // Check for active session and redirect to dashboard if found
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                navigate("/dashboard");
+            }
+        });
+    }, [navigate]);
 
     return (
         <div className="min-h-screen bg-background flex flex-col font-sans">
