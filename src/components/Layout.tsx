@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar, SidebarContent, menuItems } from "./Sidebar";
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { Menu, X, Bell } from "lucide-react";
+import { Menu, X, Bell, CircleHelp } from "lucide-react";
 import { FeaturesModal } from "./FeaturesModal";
+import { HelpModal } from "./HelpModal";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -11,15 +12,16 @@ export default function Layout() {
     const location = useLocation();
 
     const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);
+    const [isHelpOpen, setIsHelpOpen] = useState(false); // Added state for HelpModal
     const [hasNewFeatures, setHasNewFeatures] = useState(false);
     const currentVersion = "1.2.0";
 
-    useState(() => {
+    useEffect(() => { // Changed from useState to useEffect
         const lastSeen = localStorage.getItem('snap_version');
         if (lastSeen !== currentVersion) {
             setHasNewFeatures(true);
         }
-    });
+    }, []); // Added empty dependency array to run once on mount
 
     const handleOpenFeatures = () => {
         setIsFeaturesOpen(true);
@@ -38,9 +40,18 @@ export default function Layout() {
             <Sidebar />
 
             <FeaturesModal open={isFeaturesOpen} onOpenChange={setIsFeaturesOpen} />
+            <HelpModal open={isHelpOpen} onOpenChange={setIsHelpOpen} /> {/* Render HelpModal */}
 
-            {/* Desktop Notification Bell (Fixed Top Right) */}
-            <div className="hidden md:block fixed top-6 right-8 z-50">
+            {/* Desktop Notification Bell and Help (Fixed Top Right) */}
+            <div className="hidden md:block fixed top-6 right-8 z-50 flex gap-2"> {/* Added flex gap-2 */}
+                <Button
+                    variant="secondary"
+                    size="icon"
+                    className="rounded-full shadow-lg bg-card/80 backdrop-blur-sm border hover:scale-105 transition-transform relative"
+                    onClick={() => setIsHelpOpen(true)} // Button for HelpModal
+                >
+                    <CircleHelp className="h-5 w-5 text-foreground" />
+                </Button>
                 <Button
                     variant="secondary"
                     size="icon"
@@ -62,6 +73,14 @@ export default function Layout() {
                     </h1>
                 </div>
                 <div className="flex items-center gap-2">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setIsHelpOpen(true)} // Button for HelpModal
+                        className="relative"
+                    >
+                        <CircleHelp className="h-6 w-6 text-muted-foreground" />
+                    </Button>
                     <Button
                         variant="ghost"
                         size="icon"

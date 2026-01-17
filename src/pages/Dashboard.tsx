@@ -114,7 +114,6 @@ export default function Dashboard() {
                 <div>
                     <h1 className="text-2xl font-light tracking-tight text-foreground">
                         Olá, <span className="font-semibold text-gradient">{
-                            profile.contactName?.split(' ')[0] ||
                             profile.displayName?.split(' ')[0] ||
                             profile.salonName ||
                             "Gestor"
